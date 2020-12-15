@@ -4,9 +4,18 @@ import android.content.Context;
 
 import com.example.greendaoapp.db.entity.DaoMaster;
 import com.example.greendaoapp.db.entity.DaoSession;
+import com.example.greendaoapp.db.entity.GoodFriend;
+import com.example.greendaoapp.db.entity.GoodFriendDao;
+import com.example.greendaoapp.db.entity.Person;
 import com.example.greendaoapp.db.entity.PersonDao;
+import com.example.greendaoapp.db.entity.School;
 import com.example.greendaoapp.db.entity.SchoolDao;
+import com.example.greendaoapp.db.entity.Student;
 import com.example.greendaoapp.db.entity.StudentDao;
+import com.example.greendaoapp.db.entity.StudentGrade;
+import com.example.greendaoapp.db.entity.StudentGradeDao;
+import com.example.greendaoapp.db.entity.User;
+import com.example.greendaoapp.db.entity.UserDao;
 import com.example.greendaoapp.db.helper.DaoOpenHelper;
 
 import org.greenrobot.greendao.query.QueryBuilder;
@@ -87,7 +96,7 @@ public class DaoManager {
         if (null == mDaoMaster || null == mHelper) {
             //重点1.DaoOpenHelper重写onUpgrade解决升级数据库数据丢失问题（升级数据库时会自动在新表中添加还未被删除的字段的老数据）
             //todo-----数据库发生变化greendao版本号升级后，如果新增了或删除了表对应的实体类，记得更新DaoOpenHelper中的Dao.class
-            mHelper = new DaoOpenHelper(context, DB_NAME, null, PersonDao.class, StudentDao.class, SchoolDao.class);//重点2.可以重写Context中getDatabasePath方法改变数据库文件默认存储路径(app私有目录外记得申请权限)
+            mHelper = new DaoOpenHelper(context, DB_NAME, null, GoodFriendDao.class, PersonDao.class, SchoolDao.class, StudentDao.class, StudentGradeDao.class, UserDao.class);//重点2.可以重写Context中getDatabasePath方法改变数据库文件默认存储路径(app私有目录外记得申请权限)
             mDaoMaster = new DaoMaster(mHelper.getWritableDb());//打开数据库并获取，再添加到DaoMaster中管理
         }
         return mDaoMaster;

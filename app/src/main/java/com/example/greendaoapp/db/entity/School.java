@@ -7,47 +7,24 @@ import org.greenrobot.greendao.annotation.Generated;
 
 /**
  * Created by XHD on 2020/12/15
+ * todo-----------------------------不用管这张表
  */
 @Entity
 public class School {
-    @Id(autoincrement = true)
-    //对象的Id，使用Long类型作为EntityId，否则会报错。(autoincrement = true)表示主键会自增，如果false就会使用旧值
-    private Long id;
 
-    @Unique //该属性值必须在数据库中是唯一值
+    @Id //该属性值必须在数据库中是唯一值
     private String schoolId;
 
     private String schoolName;
-    private String schoolName1;
 
-    @Generated(hash = 357538628)
-    public School(Long id, String schoolId, String schoolName, String schoolName1) {
-        this.id = id;
+    @Generated(hash = 2138854871)
+    public School(String schoolId, String schoolName) {
         this.schoolId = schoolId;
         this.schoolName = schoolName;
-        this.schoolName1 = schoolName1;
     }
 
     @Generated(hash = 1579966795)
     public School() {
-    }
-
-    @Override
-    public String toString() {
-        return "School{" +
-                "id=" + id +
-                ", schoolId='" + schoolId + '\'' +
-                ", schoolName='" + schoolName + '\'' +
-                ", schoolName1='" + schoolName1 + '\'' +
-                '}';
-    }
-
-    public Long getId() {
-        return this.id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getSchoolId() {
@@ -66,11 +43,11 @@ public class School {
         this.schoolName = schoolName;
     }
 
-    public String getSchoolName1() {
-        return this.schoolName1;
-    }
-
-    public void setSchoolName1(String schoolName1) {
-        this.schoolName1 = schoolName1;
+    @Override
+    public String toString() {
+        return "School{" +
+                "schoolId='" + schoolId + '\'' +
+                ", schoolName='" + schoolName + '\'' +
+                '}';
     }
 }

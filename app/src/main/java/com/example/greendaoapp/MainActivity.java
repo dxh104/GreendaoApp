@@ -8,9 +8,10 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.example.greendaoapp.db.base.BaseDao;
-import com.example.greendaoapp.db.entity.Person;
-import com.example.greendaoapp.db.entity.School;
+import com.example.greendaoapp.db.entity.GoodFriend;
 import com.example.greendaoapp.db.entity.Student;
+import com.example.greendaoapp.db.entity.StudentGrade;
+import com.example.greendaoapp.db.entity.User;
 import com.example.greendaoapp.db.manager.DaoManager;
 
 import java.util.List;
@@ -21,19 +22,18 @@ public class MainActivity extends AppCompatActivity {
     private Button btnInsert;
     private TextView tvData;
     private DaoManager daoManager;
-    private BaseDao<Person, Long> personLongBaseDao;
     private BaseDao<Student, Long> studentLongBaseDao;
-    private BaseDao<School, Long> schoolLongBaseDao;
+    private BaseDao<GoodFriend, Long> goodFriendLongBaseDao;
+    private BaseDao<User, String> userStringBaseDao;
+    private BaseDao<StudentGrade, Long> studentGradeStringBaseDao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initView();
-        daoManager = DaoManager.getInstance(this);
-        personLongBaseDao = new BaseDao<>(daoManager.getDaoSession().getPersonDao());
-        studentLongBaseDao = new BaseDao<>(daoManager.getDaoSession().getStudentDao());
-        schoolLongBaseDao = new BaseDao<>(daoManager.getDaoSession().getSchoolDao());
+
+
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -41,17 +41,7 @@ public class MainActivity extends AppCompatActivity {
                     tvData.post(new Runnable() {
                         @Override
                         public void run() {
-                            String str = "";
-                            List<Student> studentList = studentLongBaseDao.queryAll();
-                            List<School> schoolList = schoolLongBaseDao.queryAll();
-                            for (int i = 0; i < studentList.size(); i++) {
-                                str += studentList.get(i).toString() + "\n";
-                            }
 
-                            for (int i = 0; i < schoolList.size(); i++) {
-                                str += schoolList.get(i).toString() + "\n";
-                            }
-                            tvData.setText(str);
                         }
                     });
                     try {
@@ -62,36 +52,86 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }).start();
+
         btnInsert.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                Person person = new Person();
-//                person.setAge(11);
-//                person.setUserId("uId" + System.currentTimeMillis());//唯一
-//                person.setUserName("uName" + System.currentTimeMillis());//非空
-//                person.setAge2(12);
-//                personLongBaseDao.save(person);
+                List<StudentGrade> studentGrades = studentGradeStringBaseDao.queryAll();
+                String str="";
+                for (int i = 0; i < studentGrades.size(); i++) {
+                    str+=studentGrades.get(i).toString();
+                }
+                Log.i("----------", "studentGrades: "+str);
+                str="";
 
-                School school = new School();
-                school.setSchoolId(System.currentTimeMillis() + "");
-                school.setId(System.currentTimeMillis());
-                school.setSchoolName("名校");
-                schoolLongBaseDao.save(school);
+                List<GoodFriend> goodFriends = goodFriendLongBaseDao.queryAll();
+                for (int i = 0; i < goodFriends.size(); i++) {
+                    goodFriends.get(i).__setDaoSession(daoManager.getDaoSession());
+                    str+=goodFriends.get(i).toString();
+                }
+                Log.i("----------", "goodFriends: "+str);
+                str="";
 
-                Student student = new Student();
-                student.setStudentId(System.currentTimeMillis() + "");
-                student.setStudentAge(11);
-                student.setStudentName("小米");
-                student.setStudentName1("小米1");
-                studentLongBaseDao.save(student);
-                Log.i("-----", "onClick: " + student.toString());
+                List<Student> students = studentLongBaseDao.queryAll();
+                for (int i = 0; i < students.size(); i++) {
+                    students.get(i).__setDaoSession(daoManager.getDaoSession());
+                    str+=students.get(i).toString();
+                }
+                Log.i("----------", "students: "+str);
+                str="";
+
+                List<User> users = userStringBaseDao.queryAll();
+                for (int i = 0; i < users.size(); i++) {
+                    users.get(i).__setDaoSession(daoManager.getDaoSession());
+                    str+=users.get(i).toString();
+                }
+                Log.i("----------", "users: "+str);
             }
         });
+        for (int i = 0; i < 6; i++) {//设置   年级表
+            StudentGrade studentGrade = new StudentGrade();
+            studentGrade.setStudentGradeId((long) i);
+            studentGrade.setStudentGradeName(i + "年级");
+            studentGradeStringBaseDao.saveOrUpdate(studentGrade);
+        }
+        for (int i = 0; i <10 ; i++) {
+            Student student = new Student();
+            student.setStudentId("sid_"+i);
+            student.setStudentGrade(studentGradeStringBaseDao.query((long) (i%6)));
+            student.setStudentGradeId(studentGradeStringBaseDao.query((long) (i%6)).getStudentGradeId());
+            student.__setDaoSession(daoManager.getDaoSession());
+            studentLongBaseDao.saveOrUpdate(student);//设置学生表
+            User user = new User();
+            user.setUserId("uId_"+i);
+            user.setUserName("小米"+i);
+            user.setUserAge(i);
+            user.setUserSex(true);
+            user.setStudent(student);
+            user.setStudentId(student.getStudentId());
+            user.__setDaoSession(daoManager.getDaoSession());
+            userStringBaseDao.saveOrUpdate(user);//设置用户表
+        }
+        //设置好友表
+        GoodFriend goodFriend = new GoodFriend();
+        goodFriend.setUserId("uId_0");
+        goodFriend.setFriendUserId("uId_1");
+        goodFriendLongBaseDao.saveOrUpdate(goodFriend);
+        goodFriend = new GoodFriend();
+        goodFriend.setUserId("uId_1");
+        goodFriend.setFriendUserId("uId_0");
+        goodFriendLongBaseDao.saveOrUpdate(goodFriend);
+
     }
 
     private void initView() {
         btnInsert = (Button) findViewById(R.id.btnInsert);
         tvData = (TextView) findViewById(R.id.tv_data);
+
+        daoManager = DaoManager.getInstance(this);
+        studentLongBaseDao = new BaseDao<>(daoManager.getDaoSession().getStudentDao());//学生表
+        goodFriendLongBaseDao = new BaseDao<>(daoManager.getDaoSession().getGoodFriendDao());//好友表
+        userStringBaseDao = new BaseDao<>(daoManager.getDaoSession().getUserDao());//用户表
+        studentGradeStringBaseDao = new BaseDao<>(daoManager.getDaoSession().getStudentGradeDao());//年级表
     }
 
     @Override
